@@ -16,8 +16,6 @@ CURRENT_WEATHER_DATA_CURL_OUTPUT=$(curl -Ls --get \
   --data-urlencode "key=${WEATHERAPI_KEY}" \
   "https://api.weatherapi.com/v1/current.json")
 
-#echo "${CURRENT_WEATHER_DATA_CURL_OUTPUT}" | jq .
-
 #{
 #  "location": {
 #    "name": "Moalboal",
@@ -75,3 +73,19 @@ CURRENT_WEATHER_DATA_CURL_OUTPUT=$(curl -Ls --get \
 #    "gti": 0.0
 #  }
 #}
+
+# @todo: optimize
+NAME=$(jq -r '.location.name' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+REGION=$(jq -r '.location.region' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+COUNTRY=$(jq -r '.location.country' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+CONDITION=$(jq -r '.current.condition.text' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+LAST_UPDATE=$(jq -r '.current.last_updated' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+LAST_UPDATE_HUMAN_READABLE=$(date -d "${LAST_UPDATE}" +"%B %d, %Y at %r")
+
+echo ""
+echo "  ${NAME}, ${REGION}, ${COUNTRY}"
+echo "  ${LAST_UPDATE_HUMAN_READABLE}"
+echo "    = ${CONDITION}"
+echo ""
+
+# @todo: forecast (3 days)

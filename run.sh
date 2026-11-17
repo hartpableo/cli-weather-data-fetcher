@@ -74,12 +74,16 @@ CURRENT_WEATHER_DATA_CURL_OUTPUT=$(curl -Ls --get \
 #  }
 #}
 
-# @todo: optimize
-NAME=$(jq -r '.location.name' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
-REGION=$(jq -r '.location.region' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
-COUNTRY=$(jq -r '.location.country' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
-CONDITION=$(jq -r '.current.condition.text' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
-LAST_UPDATE=$(jq -r '.current.last_updated' <(printf '%s' "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"))
+IFS=$'\t' read -r NAME REGION COUNTRY CONDITION LAST_UPDATE < <(
+	jq -r '[
+		.location.name,
+		.location.region,
+		.location.country,
+		.current.condition.text,
+		.current.last_updated
+	] | @tsv' <<< "${CURRENT_WEATHER_DATA_CURL_OUTPUT}"
+)
+
 LAST_UPDATE_HUMAN_READABLE=$(date -d "${LAST_UPDATE}" +"%B %d, %Y at %r")
 
 echo ""
